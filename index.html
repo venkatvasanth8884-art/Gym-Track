@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VF FIT Gym Tracker</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#f1c40f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VF FIT">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <!-- Google Fonts: Oswald (Headings), Montserrat (Body) -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Header -->
+        <header id="main-header">
+            <div class="logo">
+                <img src="logo.png" alt="7F FIT" class="app-logo-img">
+                <h1>7F FIT</h1>
+            </div>
+            <div class="header-actions">
+                <button id="btn-export-header" aria-label="Export Data"><i class="fa-solid fa-file-export"></i></button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Sections will be injected/toggled here -->
+            
+            <!-- SECTION 1: Daily Tracker (Dashboard) -->
+            <section id="view-dashboard" class="view-section active">
+                <div class="date-selector">
+                    <button id="btn-prev-day"><i class="fa-solid fa-chevron-left"></i></button>
+                    <input type="date" id="input-date" required>
+                    <button id="btn-next-day"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+
+                <div class="macro-summary-cards">
+                    <div class="macro-card highlight">
+                        <span class="macro-label">CALORIES</span>
+                        <span class="macro-value" id="summary-calories">0</span>
+                    </div>
+                    <div class="macro-card">
+                        <span class="macro-label">PROTEIN (g)</span>
+                        <span class="macro-value" id="summary-protein">0</span>
+                    </div>
+                    <div class="macro-card">
+                        <span class="macro-label">CARBS (g)</span>
+                        <span class="macro-value" id="summary-carbs">0</span>
+                    </div>
+                    <div class="macro-card">
+                        <span class="macro-label">FAT (g)</span>
+                        <span class="macro-value" id="summary-fat">0</span>
+                    </div>
+                    <div class="macro-card">
+                        <span class="macro-label">FIBER (g)</span>
+                        <span class="macro-value" id="summary-fiber">0</span>
+                    </div>
+                </div>
+
+                <div class="form-panel">
+                    <h2>DAILY LOG</h2>
+                    <form id="daily-form">
+                        <div class="form-group">
+                            <label for="input-weight"><i class="fa-solid fa-weight-scale"></i> Body Weight (kg)</label>
+                            <input type="number" id="input-weight" step="0.1" placeholder="e.g. 75.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-workout"><i class="fa-solid fa-person-running"></i> Workout Type</label>
+                            <input type="text" id="input-workout" placeholder="e.g. Push Day, Pull Day, Rest">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-cardio"><i class="fa-solid fa-fire"></i> Cardio Burn (kcal)</label>
+                            <input type="number" id="input-cardio" placeholder="e.g. 300">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" id="btn-clear-daily">CLEAR</button>
+                            <button type="submit" class="btn-primary" id="btn-save-daily">SAVE ENTRY</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Food Tracker -->
+            <section id="view-food" class="view-section">
+                <div class="form-panel">
+                    <h2>FOOD LOGGER</h2>
+                    <div class="active-date-banner">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span id="food-date-display">Loading...</span>
+                    </div>
+
+                    <!-- Meal Type Selector -->
+                    <div class="form-group">
+                        <label for="input-meal-type">Meal Type</label>
+                        <select id="input-meal-type">
+                            <option value="Breakfast">Breakfast</option>
+                            <option value="Lunch">Lunch</option>
+                            <option value="Dinner">Dinner</option>
+                            <option value="Snack">Snack / Break</option>
+                        </select>
+                    </div>
+
+                    <!-- Search Bar Row -->
+                    <div class="food-search-wrapper">
+                        <div class="food-search-bar">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="input-food-search" class="food-search-input" placeholder="Search food... (eg. Egg, Dosa, Rice)" autocomplete="off">
+                            <button id="btn-search" class="btn-icon btn-primary" aria-label="Search">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                            <button id="btn-camera" class="btn-icon btn-secondary" aria-label="Use Camera">
+                                <i class="fa-solid fa-camera"></i>
+                            </button>
+                            <input type="file" id="input-camera-file" accept="image/*" capture="environment" hidden>
+                        </div>
+
+                        <!-- Suggestion Dropdown -->
+                        <ul id="search-suggestions" class="suggestion-list" hidden>
+                            <!-- Injected via JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Manual Entry Toggle -->
+                    <div class="manual-entry-toggle-row">
+                        <button id="btn-toggle-manual" class="link-btn">
+                            <i class="fa-solid fa-pencil"></i> Manual Entry
+                        </button>
+                    </div>
+
+                    <!-- Manual Entry Panel -->
+                    <div id="manual-entry-area" class="manual-entry-panel" hidden>
+                        <h3 class="panel-subheading">Manual Food Entry <span class="text-muted">(macros per 100g)</span></h3>
+                        <div class="form-group">
+                            <input type="text" id="manual-name" placeholder="Food Name">
+                        </div>
+                        <div class="macro-input-grid">
+                            <input type="number" id="manual-cal" placeholder="Calories">
+                            <input type="number" id="manual-pro" placeholder="Protein (g)">
+                            <input type="number" id="manual-carb" placeholder="Carbs (g)">
+                            <input type="number" id="manual-fat" placeholder="Fat (g)">
+                            <input type="number" id="manual-fib" placeholder="Fiber (g)">
+                        </div>
+                        <button type="button" class="btn-primary btn-full" id="btn-confirm-manual">
+                            Use These Macros
+                        </button>
+                    </div>
+
+                    <!-- Food Confirmation Panel -->
+                    <div id="food-entry-area" class="food-entry-panel" hidden>
+                        <div class="selected-food-header">
+                            <h3 id="selected-food-name">--</h3>
+                            <span id="cache-badge" class="badge-recent" hidden>RECENT</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-food-weight">Weight / Quantity (grams)</label>
+                            <input type="number" id="input-food-weight" placeholder="e.g. 120" step="1" min="1">
+                        </div>
+
+                        <!-- Macro Autofill Preview -->
+                        <div class="macro-autofill-grid">
+                            <div class="macro-autofill-cell">
+                                <span class="macro-label">Calories</span>
+                                <b id="preview-cal" class="macro-value-lg">0</b>
+                            </div>
+                            <div class="macro-autofill-cell">
+                                <span class="macro-label">Protein</span>
+                                <b id="preview-pro" class="macro-value-lg">0</b>
+                            </div>
+                            <div class="macro-autofill-cell">
+                                <span class="macro-label">Carbs</span>
+                                <b id="preview-carb" class="macro-value-lg">0</b>
+                            </div>
+                            <div class="macro-autofill-cell">
+                                <span class="macro-label">Fat</span>
+                                <b id="preview-fat" class="macro-value-lg">0</b>
+                            </div>
+                            <div class="macro-autofill-cell">
+                                <span class="macro-label">Fiber</span>
+                                <b id="preview-fib" class="macro-value-lg">0</b>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" id="btn-cancel-food">CANCEL</button>
+                            <button type="button" class="btn-primary" id="btn-add-food">SAVE TO LOG</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logged Foods List -->
+                <div class="form-panel">
+                    <h2>LOGGED TODAY</h2>
+                    <div id="logged-foods-list" class="logged-foods-list">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- SECTION 3: Analytics -->
+            <section id="view-analytics" class="view-section">
+                <div class="form-panel">
+                    <h2>PROGRESS ANALYTICS</h2>
+                    
+                    <div class="form-group">
+                        <label for="select-timeline">Timeline</label>
+                        <select id="select-timeline">
+                            <option value="7">Last 7 Days</option>
+                            <option value="14">Last 14 Days</option>
+                            <option value="30">Last 30 Days</option>
+                            <option value="90">Last 3 Months</option>
+                            <option value="180">Last 6 Months</option>
+                            <option value="365">Last 12 Months</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="select-metric-1">Metric 1</label>
+                        <select id="select-metric-1">
+                            <option value="calories">Calories Intake</option>
+                            <option value="weight">Body Weight</option>
+                            <option value="protein">Protein Intake</option>
+                            <option value="cardio">Cardio Burn</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="select-metric-2">Metric 2 (Compare)</label>
+                        <select id="select-metric-2">
+                            <option value="none">None</option>
+                            <option value="cardio">Cardio Burn</option>
+                            <option value="weight">Body Weight</option>
+                            <option value="calories">Calories Intake</option>
+                            <option value="protein">Protein Intake</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="select-chart-type">Chart Type</label>
+                        <select id="select-chart-type">
+                            <option value="bar">Bar Chart</option>
+                            <option value="line">Line Chart</option>
+                            <option value="radar">Radar Chart</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-primary" id="btn-render-chart" style="width:100%; margin-top:10px;">Render Chart</button>
+                </div>
+
+                <div class="chart-container" style="position: relative; height:300px; width:100%; background:var(--panel-color); padding:10px; border-radius:12px; margin-bottom:20px;">
+                    <canvas id="analytics-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- SECTION 4: Settings/Backup -->
+            <section id="view-settings" class="view-section">
+                <div class="form-panel" id="panel-install-app" hidden>
+                    <h2>APP INSTALLATION</h2>
+                    <p class="text-muted" style="margin-bottom: 20px; font-size: 0.9rem;">
+                        Install 7F FIT on your home screen for the best experience (offline access, full-screen mode, and faster loading).
+                    </p>
+                    <button class="btn-primary" id="btn-install-app" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
+                        <i class="fa-solid fa-download"></i> INSTALL APP
+                    </button>
+                </div>
+
+                <div class="form-panel">
+                    <h2>BACKUP & SYNC</h2>
+                    <p class="text-muted" style="margin-bottom: 20px; font-size: 0.9rem;">
+                        Export your data to an Excel (.xlsx) file to keep it safe. You can import this file later to restore your progress.
+                    </p>
+
+                    <div style="display:flex; flex-direction:column; gap:15px;">
+                        <button class="btn-primary" id="btn-export-excel" style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                            <i class="fa-solid fa-file-export"></i> EXPORT TO EXCEL
+                        </button>
+                        
+                        <div style="position:relative;">
+                            <button class="btn-secondary" id="btn-import-excel" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
+                                <i class="fa-solid fa-file-import"></i> IMPORT BACKUP
+                            </button>
+                            <input type="file" id="input-import-file" accept=".xlsx, .xls, .csv" style="display:none;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-panel" style="border: 1px solid var(--danger);">
+                    <h2 style="color: var(--danger);">DANGER ZONE</h2>
+                    <button class="btn-secondary" id="btn-clear-all" style="width:100%; color: var(--danger); border-color: var(--danger); margin-top:10px;">
+                        Erase All Local Data
+                    </button>
+                </div>
+
+                <div class="app-about-card">
+                    <img src="logo.png" alt="VF FIT">
+                    <p>VF FIT v2.0.0</p>
+                    <small>Built with Premium Speed</small>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav">
+            <button class="nav-btn active" data-target="view-dashboard">
+                <i class="fa-solid fa-house"></i>
+                <span>Daily</span>
+            </button>
+            <button class="nav-btn" data-target="view-food">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Food</span>
+            </button>
+            <button class="nav-btn" data-target="view-analytics">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Progress</span>
+            </button>
+            <button class="nav-btn" data-target="view-settings">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log('7F FIT: Service Worker registered'))
+                    .catch(err => console.warn('SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
